@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title></title>
+    </head>
+
+    <body>
+        <header>
+            <h1>Advanced scroll example</h1>
+            <nav>
+                <ul id="toc"></ul>
+            </nav>
+        </header>
+
+        <div class="container" id="content">
+            <section id="section-1">
+                <h2>Section 1</h2>
+                <p>This is the content for section 1</p>
+            </section>
+            <section id="section-2">
+                <h2>Section 2</h2>
+                <p>This is the content for section 2</p>
+            </section>
+            <section id="section-3">
+                <h2>Section 3</h2>
+                <p>This is the content for section 3</p>
+            </section>
+            <section id="section-4">
+                <h2>Section 4</h2>
+                <p>This is the content for section 4</p>
+            </section>
+        </div>
+
+        <footer>
+            <p>scroll demo</p>
+        </footer>
+
+        <div class="controls">
+            <label for="behavior">Scroll behaviour</label>
+            <select id="behavior">
+                <option value="smooth" selected>Smooth</option>
+                <option value="auto">Auto</option>
+            </select>
+            <label for="block">Block alignment</label>
+            <select id="block">
+                <option value="center" selected>Center</option>
+                <option value="start">Start</option>
+                <option value="end">End</option>
+            </select>
+        </div>
+    </body>
+
+    <script>
+        // generate table of contents
+        const toc = document.getElementsById("toc")
+        const sections = document.querySelectorAll("section")
+
+        sections.forEach((section, index) => {
+            const listItem = document.createElement("li")
+            listItem.textContent = `Section ${index + 1}`
+            listItem.dataset.target = section.id
+
+            if (index === 0) listItem.classList.add("active")
+            toc.appendChild(listItem)
+        })
+
+        // scroll into view logic
+        const behaviorselect = document.getElementById("behavior")
+        const blockselect = document.getElementById("block")
+
+        toc.addEventListener("click", (event) => {
+            const targetId = event.target.dataset.target
+            if (targetId) {
+                const targetElement = document.getElementById(targetId)
+                targetElement.scrollIntoView({
+                    behavior: behaviorselect.value,
+                    block: blockselect.value
+                })
+                updateActiveState(targetId)
+            }
+        })
+
+        // highlight active section
+        function updateActiveState(activeId) {
+            document.querySelectorAll("nav ul li").forEach((li) => li.classList.remove("active"))
+            document.querySelector(`[data-target="${activeId}"]`).classList.add("active")
+
+            sections.forEach((section) => section.classList.remove("active"))
+            document.getElementById(activeId).classList.add("active")
+        }
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        updateActiveState(entry.target.id)
+                    }
+                })
+            },
+            {threshold: 0.5}
+        )
+
+        sections.forEach((section) => observer.observe(section))
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #333;
+            color: #fff;
+            padding: 10px 20px;
+            z-index: 1000;
+        }
+    
+        header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        nav {
+            margin-top: 0;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        nav ul li {
+            cursor: pointer;
+            padding: 5px 10px;
+            background: #444;
+            border-radius: 4px;
+        }
+
+        nav ul li.hover,
+        nav ul li.active {
+            background: #007bff;
+            color: white;
+        }
+
+        .container {
+            padding-top: 120px;
+        }
+
+        section.active {
+            background: #e0f7ff;
+            border-color: #007bff;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #333;
+            color: white;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #f9f9f9;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls label {
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .controls select {
+            padding: 5px;
+            font-size: 14px;
+        }
+    </style>
+</html>
